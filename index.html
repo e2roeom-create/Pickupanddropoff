@@ -1,371 +1,341 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>บันทึกข้อมูลและถ่ายรูป</title>
-    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f7f6;
-            margin: 0;
-            padding: 20px;
-        }
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            background: #ffffff;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
-        h2 {
-            text-align: center;
-            color: #333;
-        }
-        .item-card {
-            background: #fafafa;
-            border: 1px solid #ddd;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-        }
-        .form-group {
-            margin-bottom: 10px;
-        }
-        label {
-            display: block;
-            margin-bottom: 3px;
-            font-weight: bold;
-            color: #555;
-            font-size: 14px;
-        }
-        input[type="text"] {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-        .signature-section, .photo-section {
-            margin-top: 20px;
-            border-top: 2px solid #eee;
-            padding-top: 15px;
-        }
-        .signature-container {
-            border: 2px dashed #ccc;
-            border-radius: 4px;
-            height: 180px;
-            background-color: #fff;
-            position: relative;
-        }
-        canvas {
-            width: 100%;
-            height: 100%;
-            touch-action: none;
-        }
-        .btn-row {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 8px;
-        }
-        .signature-tools {
-            display: flex;
-            gap: 5px;
-        }
-        button {
-            padding: 8px 12px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        .btn-pen { background-color: #34495e; color: white; }
-        .btn-pen.active { background-color: #2980b9; }
-        .btn-eraser { background-color: #e67e22; color: white; }
-        .btn-eraser.active { background-color: #d35400; }
-        .btn-clear { background-color: #e74c3c; color: white; }
-        .btn-remove { background-color: #c0392b; color: white; font-size: 12px; padding: 5px 10px; }
-        .btn-add { background-color: #3498db; color: white; width: 100%; padding: 10px; font-size: 16px; margin-bottom: 15px; }
-        .btn-camera { background-color: #8e44ad; color: white; width: 100%; padding: 10px; font-size: 15px; margin-bottom: 10px; }
-        .btn-capture { background-color: #27ae60; color: white; width: 100%; padding: 10px; font-size: 15px; margin-top: 10px; display: none; }
-        .btn-submit { background-color: #2ecc71; color: white; width: 100%; padding: 12px; font-size: 16px; font-weight: bold; margin-top: 15px; }
-        button:hover { opacity: 0.9; }
-        .item-header { font-weight: bold; color: #2980b9; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-        
-        /* สไตล์สำหรับกล้องสด */
-        .camera-container {
-            display: none;
-            text-align: center;
-            margin-top: 10px;
-        }
-        video {
-            width: 100%;
-            max-width: 400px;
-            border-radius: 4px;
-            background: #000;
-        }
-        .preview-container {
-            margin-top: 10px;
-            text-align: center;
-        }
-        .preview-container img {
-            max-width: 200px;
-            max-height: 200px;
-            border-radius: 4px;
-            border: 1px solid #ddd;
-            display: none;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>บันทึกข้อมูลการรับเรื่อง</title>
+  <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f7f6;
+      margin: 0;
+      padding: 16px;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+      padding: 20px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px #0002;
+    }
+    h2 { text-align: center; }
+    .item-card {
+      background: #fafafa;
+      border: 1px solid #ddd;
+      padding: 14px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+    }
+    .item-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      color: #1672a5;
+      font-weight: bold;
+    }
+    .form-group { margin-bottom: 10px; }
+    label {
+      display: block;
+      margin-bottom: 4px;
+      font-weight: bold;
+    }
+    input[type="text"] {
+      box-sizing: border-box;
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #bbb;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+    button {
+      border: 0;
+      border-radius: 5px;
+      padding: 10px 12px;
+      cursor: pointer;
+      font-size: 15px;
+    }
+    button:disabled { opacity: .6; cursor: wait; }
+    .add, .camera, .capture, .submit {
+      width: 100%;
+      margin-top: 10px;
+      color: white;
+    }
+    .add { background: #2980b9; }
+    .camera { background: #8e44ad; }
+    .capture { background: #229954; display: none; }
+    .submit { background: #239b56; font-weight: bold; }
+    .remove, .clear { background: #c0392b; color: white; }
+    .signature-section, .photo-section {
+      margin-top: 20px;
+      padding-top: 15px;
+      border-top: 1px solid #ddd;
+    }
+    .signature-box {
+      height: 180px;
+      border: 2px dashed #aaa;
+      background: white;
+    }
+    #signaturePad {
+      display: block;
+      width: 100%;
+      height: 100%;
+      touch-action: none;
+    }
+    .tools {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .camera-box { display: none; margin-top: 10px; text-align: center; }
+    video { width: 100%; max-width: 400px; background: black; }
+    #photoPreview {
+      display: none;
+      max-width: 200px;
+      max-height: 200px;
+      margin-top: 10px;
+    }
+    #retakeBtn { display: none; }
+    .note { color: #555; font-size: 14px; line-height: 1.5; }
+  </style>
 </head>
 <body>
+  <main class="container">
+    <h2>บันทึกข้อมูลการรับเรื่อง</h2>
 
-<div class="container">
-    <h2>บันทึกข้อมูลและถ่ายรูป</h2>
     <form id="dataForm">
-        <div id="itemsContainer"></div>
+      <div id="itemsContainer"></div>
+      <button type="button" class="add" id="addItemBtn">+ เพิ่มรายการใหม่</button>
 
-        <button type="button" class="btn-add" id="addItemBtn">+ เพิ่มรายการใหม่</button>
-
-        <!-- ส่วนถ่ายรูปสดจากเว็บแคม/กล้องมือถือ -->
-        <div class="photo-section">
-            <label style="font-size: 16px; margin-bottom: 8px;">รูปถ่ายผู้รับ / หลักฐาน (ไม่บังคับ):</label>
-            <button type="button" class="btn-camera" id="openCameraBtn">📷 เปิดกล้องถ่ายรูป</button>
-            
-            <div class="camera-container" id="cameraContainer">
-                <video id="video" autoplay playsinline></video>
-                <button type="button" class="btn-capture" id="captureBtn">📸 กดถ่ายภาพ</button>
-            </div>
-
-            <canvas id="snapshotCanvas" style="display:none;"></canvas>
-
-            <div class="preview-container">
-                <img id="photoPreview" alt="ตัวอย่างรูปถ่าย">
-                <br>
-                <button type="button" class="btn-clear" id="retakeBtn" style="display:none; margin-top: 5px; font-size: 12px; padding: 4px 8px;">ถ่ายใหม่อีกครั้ง</button>
-            </div>
+      <section class="photo-section">
+        <label>รูปถ่ายผู้รับ / หลักฐาน (ไม่บังคับ):</label>
+        <button type="button" class="camera" id="openCameraBtn">เปิดกล้องถ่ายรูป</button>
+        <div class="camera-box" id="cameraContainer">
+          <video id="video" autoplay playsinline></video>
+          <button type="button" class="capture" id="captureBtn">ถ่ายภาพ</button>
         </div>
+        <img id="photoPreview" alt="ตัวอย่างรูปถ่าย">
+        <button type="button" class="remove" id="retakeBtn">ถ่ายใหม่</button>
+      </section>
 
-        <!-- ส่วนเซ็นชื่อ -->
-        <div class="signature-section">
-            <label style="font-size: 16px; margin-bottom: 8px;">ลายเซ็นผู้รับ (ใช้ร่วมกันทุกรายการ):</label>
-            <div class="signature-container">
-                <canvas id="signaturePad"></canvas>
-            </div>
-            <div class="btn-row">
-                <div class="signature-tools">
-                    <button type="button" class="btn-pen active" id="penBtn">✍️ ปากกา</button>
-                    <button type="button" class="btn-eraser" id="eraserBtn">🧹 ยางลบ</button>
-                </div>
-                <button type="button" class="btn-clear" id="clearBtn">ล้างลายเซ็น</button>
-            </div>
+      <section class="signature-section">
+        <label>ลายเซ็นผู้รับ:</label>
+        <div class="signature-box">
+          <canvas id="signaturePad"></canvas>
         </div>
+        <div class="tools">
+          <div>
+            <button type="button" id="penBtn">ปากกา</button>
+            <button type="button" id="eraserBtn">ยางลบ</button>
+          </div>
+          <button type="button" class="clear" id="clearBtn">ล้างลายเซ็น</button>
+        </div>
+      </section>
 
-        <button type="submit" class="btn-submit" id="submitBtn">บันทึกข้อมูลทั้งหมดลง Google Sheets</button>
+      <button type="submit" class="submit" id="submitBtn">ส่งข้อมูล</button>
     </form>
-</div>
 
-<script>
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyfOfqm8EONrl2CiSaYxlpkDLZ84ctbmAToZP23idP_SBtyxhFJP3fNHqQ4pEsUb0no/exec";
-    const itemsContainer = document.getElementById('itemsContainer');
-    
-    const canvas = document.getElementById('signaturePad');
-    const signaturePad = new SignaturePad(canvas);
+    <p class="note">
+      หลังส่งข้อมูล กรุณาตรวจสอบ Google Sheets ก่อนกดส่งซ้ำ
+      เพราะหน้าเว็บไม่สามารถอ่านผลตอบกลับจากระบบบันทึกได้โดยตรง
+    </p>
+  </main>
 
-    let base64Photo = "";
-    let mediaStream = null;
+  <script>
+    const WEB_APP_URL =
+      "https://script.google.com/macros/s/AKfycbyfOfqm8EONrl2CiSaYxlpkDLZ84ctbmAToZP23idP_SBtyxhFJP3fNHqQ4pEsUb0no/exec";
 
-    const video = document.getElementById('video');
-    const cameraContainer = document.getElementById('cameraContainer');
-    const openCameraBtn = document.getElementById('openCameraBtn');
-    const captureBtn = document.getElementById('captureBtn');
-    const photoPreview = document.getElementById('photoPreview');
-    const retakeBtn = document.getElementById('retakeBtn');
-    const snapshotCanvas = document.getElementById('snapshotCanvas');
+    const itemsContainer = document.getElementById("itemsContainer");
+    const form = document.getElementById("dataForm");
+    const submitBtn = document.getElementById("submitBtn");
 
-    // เปิดกล้อง
-    openCameraBtn.addEventListener('click', async () => {
-        cameraContainer.style.display = 'block';
-        captureBtn.style.display = 'block';
-        openCameraBtn.style.display = 'none';
-        
-        try {
-            mediaStream = await navigator.mediaDevices.getUserMedia({ 
-                video: { facingMode: 'environment' }, // พยายามใช้กล้องหลังบนมือถือ
-                audio: false 
-            });
-            video.srcObject = mediaStream;
-        } catch (err) {
-            alert("ไม่สามารถเปิดกล้องได้ กรุณาตรวจสอบสิทธิ์การเข้าถึงกล้อง: " + err.message);
-            cameraContainer.style.display = 'none';
-            openCameraBtn.style.display = 'block';
-        }
-    });
-
-    // ถ่ายภาพจาก Video Stream
-    captureBtn.addEventListener('click', () => {
-        const width = video.videoWidth;
-        const height = video.videoHeight;
-        snapshotCanvas.width = width;
-        snapshotCanvas.height = height;
-        
-        const ctx = snapshotCanvas.getContext('2d');
-        ctx.drawImage(video, 0, 0, width, height);
-
-        base64Photo = snapshotCanvas.toDataURL('image/jpeg');
-        photoPreview.src = base64Photo;
-        photoPreview.style.display = 'inline-block';
-        retakeBtn.style.display = 'inline-block';
-
-        // ปิดกล้องหลังถ่ายเสร็จ
-        stopCamera();
-    });
-
-    // ถ่ายใหม่อีกครั้ง
-    retakeBtn.addEventListener('click', () => {
-        base64Photo = "";
-        photoPreview.style.display = 'none';
-        retakeBtn.style.display = 'none';
-        openCameraBtn.click(); // เปิดกล้องใหม่อัตโนมัติ
-    });
-
-    // ปิดการทำงานของกล้อง
-    function stopCamera() {
-        if (mediaStream) {
-            mediaStream.getTracks().forEach(track => track.stop());
-            mediaStream = null;
-        }
-        cameraContainer.style.display = 'none';
-        captureBtn.style.display = 'none';
-        openCameraBtn.style.display = 'block';
-    }
-
-    // ปากกา / ยางลบ
-    const penBtn = document.getElementById('penBtn');
-    const eraserBtn = document.getElementById('eraserBtn');
-
-    penBtn.addEventListener('click', () => {
-        signaturePad.penColor = "rgb(0, 0, 0)";
-        penBtn.classList.add('active');
-        eraserBtn.classList.remove('active');
-    });
-
-    eraserBtn.addEventListener('click', () => {
-        signaturePad.penColor = "rgb(255, 255, 255)";
-        eraserBtn.classList.add('active');
-        penBtn.classList.remove('active');
-    });
-
-    function resizeCanvas() {
-        const ratio = Math.max(window.devicePixelRatio || 1, 1);
-        canvas.width = canvas.offsetWidth * ratio;
-        canvas.height = canvas.offsetHeight * ratio;
-        canvas.getContext("2d").scale(ratio, ratio);
-        signaturePad.clear();
-    }
-    window.addEventListener("resize", resizeCanvas);
-    resizeCanvas();
-
-    document.getElementById('clearBtn').addEventListener('click', () => {
-        signaturePad.clear();
-    });
-
-    function addItem(book = '', doc = '', loc = '') {
-        const index = itemsContainer.children.length;
-        const card = document.createElement('div');
-        card.className = 'item-card';
-        card.innerHTML = `
-            <div class="item-header">
-                <span>รายการที่ <span class="item-index">${index + 1}</span></span>
-                ${index > 0 ? '<button type="button" class="btn-remove" onclick="removeItem(this)">ลบรายการนี้</button>' : ''}
-            </div>
-            <div class="form-group"><label>เล่มที่:</label><input type="text" class="bookNo" value="${book}" required></div>
-            <div class="form-group"><label>เลขที่:</label><input type="text" class="docNo" value="${doc}" required></div>
-            <div class="form-group"><label>สถานที่ให้บริการ:</label><input type="text" class="location" value="${loc}" required></div>
-        `;
-        itemsContainer.appendChild(card);
-        updateIndexes();
-    }
-
-    function removeItem(button) {
-        button.closest('.item-card').remove();
-        updateIndexes();
+    // สร้างรายการกรอกข้อมูล
+    function addItem() {
+      const card = document.createElement("div");
+      card.className = "item-card";
+      card.innerHTML = `
+        <div class="item-header">
+          <span>รายการที่ <span class="item-index"></span></span>
+          <button type="button" class="remove remove-item">ลบรายการ</button>
+        </div>
+        <div class="form-group">
+          <label>กฟฟ.:</label>
+          <input type="text" class="pea" required>
+        </div>
+        <div class="form-group">
+          <label>เล่มที่:</label>
+          <input type="text" class="bookNo" required>
+        </div>
+        <div class="form-group">
+          <label>เลขที่:</label>
+          <input type="text" class="docNo" required>
+        </div>
+      `;
+      itemsContainer.appendChild(card);
+      updateIndexes();
     }
 
     function updateIndexes() {
-        const cards = itemsContainer.querySelectorAll('.item-card');
-        cards.forEach((card, idx) => {
-            card.querySelector('.item-index').textContent = idx + 1;
-        });
+      itemsContainer.querySelectorAll(".item-card").forEach((card, index) => {
+        card.querySelector(".item-index").textContent = index + 1;
+        card.querySelector(".remove-item").style.display =
+          itemsContainer.children.length > 1 ? "inline-block" : "none";
+      });
     }
 
-    document.getElementById('addItemBtn').addEventListener('click', () => addItem());
-    window.addEventListener('DOMContentLoaded', () => addItem());
+    itemsContainer.addEventListener("click", event => {
+      if (event.target.classList.contains("remove-item")) {
+        event.target.closest(".item-card").remove();
+        updateIndexes();
+      }
+    });
 
-    // ส่งข้อมูล
-    document.getElementById('dataForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        stopCamera(); // ปิดกล้องเผื่อค้างไว้
+    document.getElementById("addItemBtn").addEventListener("click", addItem);
+    addItem();
 
-        if (signaturePad.isEmpty()) {
-            alert("กรุณาลงลายเซ็นผู้รับก่อนบันทึกข้อมูล");
-            return;
-        }
+    // ลายเซ็น
+    const signatureCanvas = document.getElementById("signaturePad");
+    const signaturePad = new SignaturePad(signatureCanvas, {
+      backgroundColor: "rgb(255,255,255)"
+    });
 
-        const cards = itemsContainer.querySelectorAll('.item-card');
-        let itemsData = [];
-        cards.forEach(card => {
-            itemsData.push({
-                bookNo: card.querySelector('.bookNo').value,
-                docNo: card.querySelector('.docNo').value,
-                location: card.querySelector('.location').value
-            });
+    function resizeSignatureCanvas() {
+      const ratio = Math.max(window.devicePixelRatio || 1, 1);
+      signatureCanvas.width = signatureCanvas.offsetWidth * ratio;
+      signatureCanvas.height = signatureCanvas.offsetHeight * ratio;
+      signatureCanvas.getContext("2d").scale(ratio, ratio);
+      signaturePad.clear();
+    }
+
+    window.addEventListener("resize", resizeSignatureCanvas);
+    resizeSignatureCanvas();
+
+    document.getElementById("clearBtn").addEventListener("click", () => {
+      signaturePad.clear();
+    });
+
+    document.getElementById("penBtn").addEventListener("click", () => {
+      signaturePad.penColor = "rgb(0,0,0)";
+    });
+
+    document.getElementById("eraserBtn").addEventListener("click", () => {
+      signaturePad.penColor = "rgb(255,255,255)";
+    });
+
+    // กล้องและรูปถ่าย
+    const video = document.getElementById("video");
+    const cameraContainer = document.getElementById("cameraContainer");
+    const openCameraBtn = document.getElementById("openCameraBtn");
+    const captureBtn = document.getElementById("captureBtn");
+    const photoPreview = document.getElementById("photoPreview");
+    const retakeBtn = document.getElementById("retakeBtn");
+
+    let mediaStream = null;
+    let photoData = "";
+
+    async function openCamera() {
+      try {
+        mediaStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "environment" },
+          audio: false
+        });
+        video.srcObject = mediaStream;
+        await video.play();
+
+        cameraContainer.style.display = "block";
+        captureBtn.style.display = "inline-block";
+        openCameraBtn.style.display = "none";
+      } catch (error) {
+        alert("เปิดกล้องไม่ได้ กรุณาอนุญาตการใช้กล้องและลองใหม่");
+        stopCamera();
+      }
+    }
+
+    function stopCamera() {
+      if (mediaStream) {
+        mediaStream.getTracks().forEach(track => track.stop());
+        mediaStream = null;
+      }
+      cameraContainer.style.display = "none";
+      captureBtn.style.display = "none";
+      openCameraBtn.style.display = "block";
+    }
+
+    openCameraBtn.addEventListener("click", openCamera);
+
+    captureBtn.addEventListener("click", () => {
+      if (!video.videoWidth || !video.videoHeight) {
+        alert("กล้องยังไม่พร้อม กรุณารอสักครู่แล้วลองใหม่");
+        return;
+      }
+
+      const maxWidth = 1280;
+      const scale = Math.min(1, maxWidth / video.videoWidth);
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.round(video.videoWidth * scale);
+      canvas.height = Math.round(video.videoHeight * scale);
+
+      const context = canvas.getContext("2d");
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      photoData = canvas.toDataURL("image/jpeg", 0.75);
+      photoPreview.src = photoData;
+      photoPreview.style.display = "block";
+      retakeBtn.style.display = "inline-block";
+      stopCamera();
+    });
+
+    retakeBtn.addEventListener("click", () => {
+      photoData = "";
+      photoPreview.src = "";
+      photoPreview.style.display = "none";
+      retakeBtn.style.display = "none";
+      openCamera();
+    });
+
+    // ส่งข้อมูลไป Apps Script
+    form.addEventListener("submit", async event => {
+      event.preventDefault();
+      stopCamera();
+
+      if (signaturePad.isEmpty()) {
+        alert("กรุณาลงลายเซ็นก่อนส่งข้อมูล");
+        return;
+      }
+
+      const items = [...itemsContainer.querySelectorAll(".item-card")].map(card => ({
+        pea: card.querySelector(".pea").value.trim(),
+        bookNo: card.querySelector(".bookNo").value.trim(),
+        docNo: card.querySelector(".docNo").value.trim()
+      }));
+
+      const payload = {
+        items: items,
+        signature: signaturePad.toDataURL("image/png"),
+        photo: photoData
+      };
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = "กำลังส่งข้อมูล...";
+
+      try {
+        await fetch(WEB_APP_URL, {
+          method: "POST",
+          mode: "no-cors",
+          body: JSON.stringify(payload)
         });
 
-        const submitBtn = document.getElementById('submitBtn');
-        submitBtn.disabled = true;
-        submitBtn.textContent = "กำลังบันทึกข้อมูล...";
-
-        const payload = {
-            items: itemsData,
-            signature: signaturePad.toDataURL(),
-            photo: base64Photo
-        };
-
-        try {
-            const response = await fetch(WEB_APP_URL, {
-                method: 'POST',
-                body: JSON.stringify(payload)
-            });
-            const result = await response.json();
-
-            if (result.status === "success") {
-                alert("บันทึกข้อมูลทั้งหมดสำเร็จ!");
-                itemsContainer.innerHTML = '';
-                signaturePad.clear();
-                
-                // รีเซ็ตรูปถ่าย
-                base64Photo = "";
-                photoPreview.style.display = 'none';
-                retakeBtn.style.display = 'none';
-
-                signaturePad.penColor = "rgb(0, 0, 0)";
-                penBtn.classList.add('active');
-                eraserBtn.classList.remove('active');
-                addItem();
-            } else {
-                alert("เกิดข้อผิดพลาด: " + result.message);
-            }
-        } catch (error) {
-            alert("ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้");
-            console.error(error);
-        } finally {
-            submitBtn.disabled = false;
-            submitBtn.textContent = "บันทึกข้อมูลทั้งหมดลง Google Sheets";
-        }
+        alert("ส่งคำขอแล้ว กรุณาตรวจสอบข้อมูลใน Google Sheets ก่อนส่งซ้ำ");
+      } catch (error) {
+        console.error(error);
+        alert("ส่งข้อมูลไม่ได้ กรุณาตรวจสอบอินเทอร์เน็ตแล้วลองใหม่");
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "ส่งข้อมูล";
+      }
     });
-</script>
-
+  </script>
 </body>
 </html>
