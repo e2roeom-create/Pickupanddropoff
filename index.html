@@ -1,341 +1,309 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>บันทึกข้อมูลการรับเรื่อง</title>
-  <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f7f6;
-      margin: 0;
-      padding: 16px;
-    }
-    .container {
-      max-width: 600px;
-      margin: auto;
-      padding: 20px;
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 4px 10px #0002;
-    }
-    h2 { text-align: center; }
-    .item-card {
-      background: #fafafa;
-      border: 1px solid #ddd;
-      padding: 14px;
-      border-radius: 8px;
-      margin-bottom: 12px;
-    }
-    .item-header {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 10px;
-      color: #1672a5;
-      font-weight: bold;
-    }
-    .form-group { margin-bottom: 10px; }
-    label {
-      display: block;
-      margin-bottom: 4px;
-      font-weight: bold;
-    }
-    input[type="text"] {
-      box-sizing: border-box;
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #bbb;
-      border-radius: 5px;
-      font-size: 16px;
-    }
-    button {
-      border: 0;
-      border-radius: 5px;
-      padding: 10px 12px;
-      cursor: pointer;
-      font-size: 15px;
-    }
-    button:disabled { opacity: .6; cursor: wait; }
-    .add, .camera, .capture, .submit {
-      width: 100%;
-      margin-top: 10px;
-      color: white;
-    }
-    .add { background: #2980b9; }
-    .camera { background: #8e44ad; }
-    .capture { background: #229954; display: none; }
-    .submit { background: #239b56; font-weight: bold; }
-    .remove, .clear { background: #c0392b; color: white; }
-    .signature-section, .photo-section {
-      margin-top: 20px;
-      padding-top: 15px;
-      border-top: 1px solid #ddd;
-    }
-    .signature-box {
-      height: 180px;
-      border: 2px dashed #aaa;
-      background: white;
-    }
-    #signaturePad {
-      display: block;
-      width: 100%;
-      height: 100%;
-      touch-action: none;
-    }
-    .tools {
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-      margin-top: 8px;
-    }
-    .camera-box { display: none; margin-top: 10px; text-align: center; }
-    video { width: 100%; max-width: 400px; background: black; }
-    #photoPreview {
-      display: none;
-      max-width: 200px;
-      max-height: 200px;
-      margin-top: 10px;
-    }
-    #retakeBtn { display: none; }
-    .note { color: #555; font-size: 14px; line-height: 1.5; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>บันทึกการรับ-ส่งเอกสาร</title>
+<style>
+  :root{
+    --bg:#f3f0f8; --card:#fff; --ink:#2a2140; --muted:#6f6685;
+    --brand:#6b3fa0; --brand-d:#52307d; --line:#ddd6ea; --ok:#1d8a4f; --err:#c0392b;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:"Sarabun","Noto Sans Thai",system-ui,sans-serif;font-size:17px}
+  header{background:var(--brand);color:#fff;padding:18px 16px;text-align:center}
+  header h1{margin:0;font-size:1.3rem;font-weight:700}
+  main{max-width:560px;margin:0 auto;padding:16px}
+  .card{background:var(--card);border-radius:14px;padding:16px;margin-bottom:14px;box-shadow:0 1px 4px rgba(60,30,100,.08)}
+  label{display:block;font-weight:600;margin-bottom:6px}
+  input[type=text],input[type=number]{width:100%;padding:12px;border:1.5px solid var(--line);border-radius:10px;font:inherit;background:#fff}
+  input:focus{outline:none;border-color:var(--brand)}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .field{margin-bottom:14px}
+  .field:last-child{margin-bottom:0}
+  button{font:inherit;cursor:pointer;border:0;border-radius:10px;padding:12px 16px;font-weight:600}
+  .btn-primary{background:var(--brand);color:#fff;width:100%;font-size:1.1rem;padding:15px}
+  .btn-primary:active{background:var(--brand-d)}
+  .btn-primary:disabled{opacity:.6}
+  .btn-sec{background:#ece6f6;color:var(--brand-d)}
+  .btn-row{display:flex;gap:10px;flex-wrap:wrap}
+  .item{border:1.5px solid var(--line);border-radius:12px;padding:12px;margin-bottom:12px;background:#faf8fd}
+  .item-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-weight:700;color:var(--brand-d)}
+  .item-head button{background:#fde8e6;color:var(--err);padding:6px 12px;font-size:.9rem}
+  .item .row{margin-top:0}
+  .item .field{margin-bottom:0}
+  .item small{display:block;color:var(--muted);margin-bottom:4px;font-weight:600}
+  .photo-box{margin-top:10px;text-align:center}
+  .photo-box img{max-width:100%;max-height:260px;border-radius:10px;border:1px solid var(--line)}
+  .sig-wrap{border:1.5px dashed var(--brand);border-radius:10px;background:#fff;touch-action:none}
+  canvas#sig{width:100%;height:180px;display:block}
+  .hint{color:var(--muted);font-size:.85rem;margin-top:6px}
+  #toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#333;color:#fff;padding:12px 18px;border-radius:10px;opacity:0;pointer-events:none;transition:.25s;max-width:90%;text-align:center;z-index:50}
+  #toast.show{opacity:1}
+  #toast.ok{background:var(--ok)} #toast.err{background:var(--err)}
+  #pending{display:none;background:#fff4d6;border:1px solid #f0d78a;color:#6b5400;border-radius:10px;padding:10px 12px;margin-bottom:14px;font-size:.92rem}
+  /* กล้อง */
+  #camModal{display:none;position:fixed;inset:0;background:#000;z-index:40;flex-direction:column}
+  #camModal.open{display:flex}
+  #camModal video{flex:1;width:100%;min-height:0;object-fit:cover}
+  .cam-bar{display:flex;justify-content:space-around;align-items:center;padding:16px;background:#111}
+  .shutter{width:68px;height:68px;border-radius:50%;background:#fff;border:5px solid #aaa;padding:0}
+  .cam-bar .btn-sec{background:#333;color:#fff}
+</style>
 </head>
 <body>
-  <main class="container">
-    <h2>บันทึกข้อมูลการรับเรื่อง</h2>
+<header><h1>บันทึกการรับ-ส่งเอกสาร</h1></header>
 
-    <form id="dataForm">
-      <div id="itemsContainer"></div>
-      <button type="button" class="add" id="addItemBtn">+ เพิ่มรายการใหม่</button>
+<main>
+  <div id="pending"></div>
 
-      <section class="photo-section">
-        <label>รูปถ่ายผู้รับ / หลักฐาน (ไม่บังคับ):</label>
-        <button type="button" class="camera" id="openCameraBtn">เปิดกล้องถ่ายรูป</button>
-        <div class="camera-box" id="cameraContainer">
-          <video id="video" autoplay playsinline></video>
-          <button type="button" class="capture" id="captureBtn">ถ่ายภาพ</button>
-        </div>
-        <img id="photoPreview" alt="ตัวอย่างรูปถ่าย">
-        <button type="button" class="remove" id="retakeBtn">ถ่ายใหม่</button>
-      </section>
+  <form id="form" autocomplete="off">
+    <div class="card">
+      <div class="field">
+        <label for="office">กฟฟ.</label>
+        <input type="text" id="office" list="officeList" placeholder="เช่น กฟอ.เมืองเพชรบุรี" required>
+        <datalist id="officeList"></datalist>
+      </div>
+    </div>
 
-      <section class="signature-section">
-        <label>ลายเซ็นผู้รับ:</label>
-        <div class="signature-box">
-          <canvas id="signaturePad"></canvas>
-        </div>
-        <div class="tools">
-          <div>
-            <button type="button" id="penBtn">ปากกา</button>
-            <button type="button" id="eraserBtn">ยางลบ</button>
-          </div>
-          <button type="button" class="clear" id="clearBtn">ล้างลายเซ็น</button>
-        </div>
-      </section>
+    <div class="card">
+      <label>รายการเอกสาร</label>
+      <div id="items"></div>
+      <button type="button" class="btn-sec" id="btnAddItem" style="width:100%;margin-top:4px">➕ เพิ่มรายการ</button>
+    </div>
 
-      <button type="submit" class="submit" id="submitBtn">ส่งข้อมูล</button>
-    </form>
+    <div class="card">
+      <label>รูปถ่ายผู้รับ</label>
+      <div class="btn-row">
+        <button type="button" class="btn-sec" id="btnCam">📷 ถ่ายรูป</button>
+        <button type="button" class="btn-sec" id="btnPhotoClear" style="display:none">ลบรูป</button>
+      </div>
+      <input type="file" id="photoFallback" accept="image/*" capture="user" hidden>
+      <div class="photo-box"><img id="photoPrev" alt="" style="display:none"></div>
+    </div>
 
-    <p class="note">
-      หลังส่งข้อมูล กรุณาตรวจสอบ Google Sheets ก่อนกดส่งซ้ำ
-      เพราะหน้าเว็บไม่สามารถอ่านผลตอบกลับจากระบบบันทึกได้โดยตรง
-    </p>
-  </main>
+    <div class="card">
+      <label>ลายเซ็น</label>
+      <div class="sig-wrap"><canvas id="sig"></canvas></div>
+      <div class="btn-row" style="margin-top:10px">
+        <button type="button" class="btn-sec" id="btnSigClear">ล้างลายเซ็น</button>
+      </div>
+      <div class="hint">ใช้นิ้วหรือปากกาเซ็นในกรอบ</div>
+    </div>
 
-  <script>
-    const WEB_APP_URL =
-      "https://script.google.com/macros/s/AKfycbyfOfqm8EONrl2CiSaYxlpkDLZ84ctbmAToZP23idP_SBtyxhFJP3fNHqQ4pEsUb0no/exec";
+    <button type="submit" class="btn-primary" id="btnSubmit">ส่งข้อมูล</button>
+  </form>
+</main>
 
-    const itemsContainer = document.getElementById("itemsContainer");
-    const form = document.getElementById("dataForm");
-    const submitBtn = document.getElementById("submitBtn");
+<!-- หน้ากล้อง -->
+<div id="camModal">
+  <video id="camVideo" autoplay playsinline muted></video>
+  <div class="cam-bar">
+    <button type="button" class="btn-sec" id="camCancel">ยกเลิก</button>
+    <button type="button" class="shutter" id="camShot" aria-label="ถ่าย"></button>
+    <button type="button" class="btn-sec" id="camFlip">สลับกล้อง</button>
+  </div>
+</div>
 
-    // สร้างรายการกรอกข้อมูล
-    function addItem() {
-      const card = document.createElement("div");
-      card.className = "item-card";
-      card.innerHTML = `
-        <div class="item-header">
-          <span>รายการที่ <span class="item-index"></span></span>
-          <button type="button" class="remove remove-item">ลบรายการ</button>
-        </div>
-        <div class="form-group">
-          <label>กฟฟ.:</label>
-          <input type="text" class="pea" required>
-        </div>
-        <div class="form-group">
-          <label>เล่มที่:</label>
-          <input type="text" class="bookNo" required>
-        </div>
-        <div class="form-group">
-          <label>เลขที่:</label>
-          <input type="text" class="docNo" required>
-        </div>
-      `;
-      itemsContainer.appendChild(card);
-      updateIndexes();
-    }
+<div id="toast"></div>
 
-    function updateIndexes() {
-      itemsContainer.querySelectorAll(".item-card").forEach((card, index) => {
-        card.querySelector(".item-index").textContent = index + 1;
-        card.querySelector(".remove-item").style.display =
-          itemsContainer.children.length > 1 ? "inline-block" : "none";
-      });
-    }
+<script>
+/* ============ ตั้งค่า ============ */
+// วาง URL ของ Google Apps Script (Web app) ที่ Deploy แล้วตรงนี้
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyfOfqm8EONrl2CiSaYxlpkDLZ84ctbmAToZP23idP_SBtyxhFJP3fNHqQ4pEsUb0no/exec";
+/* ================================= */
 
-    itemsContainer.addEventListener("click", event => {
-      if (event.target.classList.contains("remove-item")) {
-        event.target.closest(".item-card").remove();
-        updateIndexes();
-      }
-    });
+const $ = id => document.getElementById(id);
+const toast = (msg, type="") => {
+  const t = $("toast"); t.textContent = msg; t.className = "show " + type;
+  clearTimeout(toast._t); toast._t = setTimeout(()=> t.className = "", 3200);
+};
 
-    document.getElementById("addItemBtn").addEventListener("click", addItem);
-    addItem();
+/* ---------- จำ กฟฟ. ที่เคยกรอก ---------- */
+const LS_OFFICES = "docrec_offices", LS_QUEUE = "docrec_queue", LS_LAST = "docrec_last";
+function loadOffices(){
+  try{
+    const arr = JSON.parse(localStorage.getItem(LS_OFFICES) || "[]");
+    $("officeList").innerHTML = arr.map(o => `<option value="${o.replace(/"/g,"&quot;")}">`).join("");
+  }catch(e){}
+}
+function rememberOffice(o){
+  try{
+    const arr = JSON.parse(localStorage.getItem(LS_OFFICES) || "[]");
+    if(!arr.includes(o)){ arr.unshift(o); localStorage.setItem(LS_OFFICES, JSON.stringify(arr.slice(0,30))); }
+    localStorage.setItem(LS_LAST, o);
+  }catch(e){}
+  loadOffices();
+}
+loadOffices();
+try{ $("office").value = localStorage.getItem(LS_LAST) || ""; }catch(e){}
 
-    // ลายเซ็น
-    const signatureCanvas = document.getElementById("signaturePad");
-    const signaturePad = new SignaturePad(signatureCanvas, {
-      backgroundColor: "rgb(255,255,255)"
-    });
+/* ---------- รายการเอกสาร (เพิ่ม/ลบได้) ---------- */
+let nextItemNo = 1;
+function addItem(){
+  const box = document.createElement("div");
+  box.className = "item";
+  box.innerHTML = `
+    <div class="item-head"><span>รายการที่ <input type="number" class="i-no" min="1" inputmode="numeric" style="width:80px;display:inline-block;padding:6px 8px"></span>
+      <button type="button" class="i-del">ลบ</button></div>
+    <div class="row">
+      <div class="field"><small>เลขที่</small><input type="text" class="i-doc" required></div>
+      <div class="field"><small>เล่มที่</small><input type="text" class="i-vol" required></div>
+    </div>`;
+  box.querySelector(".i-no").value = nextItemNo++;
+  box.querySelector(".i-del").onclick = () => {
+    if($("items").children.length <= 1){ toast("ต้องมีอย่างน้อย 1 รายการ","err"); return; }
+    box.remove();
+  };
+  $("items").appendChild(box);
+  box.querySelector(".i-doc").focus({preventScroll:false});
+}
+function resetItems(){ $("items").innerHTML = ""; nextItemNo = 1; addItem(); }
+$("btnAddItem").onclick = addItem;
+resetItems();
+function readItems(){
+  return [...$("items").querySelectorAll(".item")].map(el => ({
+    item: el.querySelector(".i-no").value,
+    docNo: el.querySelector(".i-doc").value.trim(),
+    volume: el.querySelector(".i-vol").value.trim()
+  }));
+}
 
-    function resizeSignatureCanvas() {
-      const ratio = Math.max(window.devicePixelRatio || 1, 1);
-      signatureCanvas.width = signatureCanvas.offsetWidth * ratio;
-      signatureCanvas.height = signatureCanvas.offsetHeight * ratio;
-      signatureCanvas.getContext("2d").scale(ratio, ratio);
-      signaturePad.clear();
-    }
+/* ---------- ถ่ายรูป ---------- */
+let photoData = "", stream = null, facing = "user";
 
-    window.addEventListener("resize", resizeSignatureCanvas);
-    resizeSignatureCanvas();
+async function openCam(){
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+    $("photoFallback").click(); return;
+  }
+  try{
+    stopStream();
+    stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:facing, width:{ideal:1280}, height:{ideal:960}}, audio:false});
+    $("camVideo").srcObject = stream;
+    $("camModal").classList.add("open");
+  }catch(err){
+    toast("เปิดกล้องไม่ได้ ใช้กล้องของเครื่องแทน", "err");
+    $("photoFallback").click();
+  }
+}
+function stopStream(){
+  if(stream){ stream.getTracks().forEach(t=>t.stop()); stream = null; }
+}
+function closeCam(){ stopStream(); $("camModal").classList.remove("open"); }
 
-    document.getElementById("clearBtn").addEventListener("click", () => {
-      signaturePad.clear();
-    });
+function setPhoto(dataUrl){
+  photoData = dataUrl;
+  $("photoPrev").src = dataUrl; $("photoPrev").style.display = "inline-block";
+  $("btnPhotoClear").style.display = "inline-block";
+  $("btnCam").textContent = "📷 ถ่ายใหม่";
+}
+function clearPhoto(){
+  photoData = ""; $("photoPrev").style.display = "none"; $("photoPrev").removeAttribute("src");
+  $("btnPhotoClear").style.display = "none"; $("btnCam").textContent = "📷 ถ่ายรูป";
+}
+function shrink(srcW, srcH, draw){
+  const MAX = 900, k = Math.min(1, MAX / Math.max(srcW, srcH));
+  const c = document.createElement("canvas");
+  c.width = Math.round(srcW*k); c.height = Math.round(srcH*k);
+  draw(c.getContext("2d"), c.width, c.height);
+  return c.toDataURL("image/jpeg", 0.72);
+}
+$("btnCam").onclick = openCam;
+$("camCancel").onclick = closeCam;
+$("camFlip").onclick = () => { facing = facing === "user" ? "environment" : "user"; openCam(); };
+$("camShot").onclick = () => {
+  const v = $("camVideo");
+  if(!v.videoWidth) return;
+  setPhoto(shrink(v.videoWidth, v.videoHeight, (ctx,w,h)=>ctx.drawImage(v,0,0,w,h)));
+  closeCam();
+};
+$("btnPhotoClear").onclick = clearPhoto;
+$("photoFallback").onchange = e => {
+  const f = e.target.files[0]; if(!f) return;
+  const img = new Image();
+  img.onload = () => { setPhoto(shrink(img.naturalWidth, img.naturalHeight, (ctx,w,h)=>ctx.drawImage(img,0,0,w,h))); URL.revokeObjectURL(img.src); };
+  img.src = URL.createObjectURL(f);
+  e.target.value = "";
+};
 
-    document.getElementById("penBtn").addEventListener("click", () => {
-      signaturePad.penColor = "rgb(0,0,0)";
-    });
+/* ---------- ลายเซ็น ---------- */
+const sig = $("sig"), sctx = sig.getContext("2d");
+let drawing = false, signed = false;
+function sizeSig(){
+  const r = sig.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+  const old = signed ? sig.toDataURL() : null;
+  sig.width = r.width*dpr; sig.height = r.height*dpr;
+  sctx.setTransform(dpr,0,0,dpr,0,0);
+  sctx.lineWidth = 2.5; sctx.lineCap = "round"; sctx.lineJoin = "round"; sctx.strokeStyle = "#111";
+  if(old){ const im = new Image(); im.onload = ()=>sctx.drawImage(im,0,0,r.width,r.height); im.src = old; }
+}
+sizeSig(); window.addEventListener("resize", sizeSig);
+const pos = e => { const r = sig.getBoundingClientRect(); return {x:e.clientX-r.left, y:e.clientY-r.top}; };
+sig.addEventListener("pointerdown", e => {
+  drawing = true; sig.setPointerCapture(e.pointerId);
+  const p = pos(e); sctx.beginPath(); sctx.moveTo(p.x,p.y); sctx.lineTo(p.x+.1,p.y+.1); sctx.stroke(); signed = true;
+});
+sig.addEventListener("pointermove", e => { if(!drawing) return; const p = pos(e); sctx.lineTo(p.x,p.y); sctx.stroke(); });
+["pointerup","pointercancel","pointerleave"].forEach(ev => sig.addEventListener(ev, ()=>drawing=false));
+function clearSig(){ sctx.clearRect(0,0,sig.width,sig.height); signed = false; }
+$("btnSigClear").onclick = clearSig;
 
-    document.getElementById("eraserBtn").addEventListener("click", () => {
-      signaturePad.penColor = "rgb(255,255,255)";
-    });
+/* ---------- ส่งข้อมูล + คิวสำรองกรณีเน็ตหลุด ---------- */
+const getQueue = () => { try{ return JSON.parse(localStorage.getItem(LS_QUEUE) || "[]"); }catch(e){ return []; } };
+const setQueue = q => { try{ localStorage.setItem(LS_QUEUE, JSON.stringify(q)); }catch(e){ toast("พื้นที่เก็บข้อมูลในเครื่องเต็ม","err"); } showPending(); };
+function showPending(){
+  const n = getQueue().length, el = $("pending");
+  if(n){ el.style.display = "block"; el.innerHTML = `มี ${n} รายการค้างส่ง <button type="button" class="btn-sec" id="btnRetry" style="padding:6px 12px;margin-left:8px">ส่งใหม่</button>`; $("btnRetry").onclick = flushQueue; }
+  else el.style.display = "none";
+}
+async function post(payload){
+  if(!SCRIPT_URL || SCRIPT_URL.startsWith("PASTE_")) throw new Error("ยังไม่ได้ตั้งค่า SCRIPT_URL");
+  const res = await fetch(SCRIPT_URL, {method:"POST", headers:{"Content-Type":"text/plain;charset=utf-8"}, body: JSON.stringify(payload)});
+  const j = await res.json();
+  if(!j.ok) throw new Error(j.error || "ส่งไม่สำเร็จ");
+  return j;
+}
+async function flushQueue(){
+  let q = getQueue(), left = [];
+  for(const item of q){ try{ await post(item); }catch(e){ left.push(item); } }
+  setQueue(left);
+  if(!left.length && q.length) toast("ส่งรายการค้างครบแล้ว","ok");
+}
 
-    // กล้องและรูปถ่าย
-    const video = document.getElementById("video");
-    const cameraContainer = document.getElementById("cameraContainer");
-    const openCameraBtn = document.getElementById("openCameraBtn");
-    const captureBtn = document.getElementById("captureBtn");
-    const photoPreview = document.getElementById("photoPreview");
-    const retakeBtn = document.getElementById("retakeBtn");
+$("form").addEventListener("submit", async e => {
+  e.preventDefault();
+  if(!photoData){ toast("กรุณาถ่ายรูปผู้รับ","err"); return; }
+  if(!signed){ toast("กรุณาเซ็นลายเซ็น","err"); return; }
 
-    let mediaStream = null;
-    let photoData = "";
+  const payload = {
+    office: $("office").value.trim(),
+    items: readItems(),
+    photo: photoData,
+    signature: sig.toDataURL("image/png"),
+    clientTime: new Date().toLocaleString("th-TH", {timeZone:"Asia/Bangkok"})
+  };
+  const btn = $("btnSubmit"); btn.disabled = true; btn.textContent = "กำลังส่ง...";
+  try{
+    await post(payload);
+    toast("บันทึกเรียบร้อย","ok");
+  }catch(err){
+    if(err.message.includes("SCRIPT_URL")){ toast(err.message,"err"); btn.disabled=false; btn.textContent="ส่งข้อมูล"; return; }
+    setQueue([...getQueue(), payload]);
+    toast("ส่งไม่สำเร็จ เก็บไว้ในเครื่องแล้ว จะส่งซ้ำภายหลัง","err");
+  }
+  rememberOffice(payload.office);
+  // เตรียมฟอร์มใหม่ (เลขรายการเริ่มต่อจากครั้งก่อน)
+  const lastNo = Math.max(...payload.items.map(i => parseInt(i.item,10) || 0));
+  resetItems();
+  $("items").querySelector(".i-no").value = nextItemNo = lastNo + 1; nextItemNo++;
+  clearPhoto(); clearSig();
+  btn.disabled = false; btn.textContent = "ส่งข้อมูล";
+  window.scrollTo({top:0, behavior:"smooth"});
+});
 
-    async function openCamera() {
-      try {
-        mediaStream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: "environment" },
-          audio: false
-        });
-        video.srcObject = mediaStream;
-        await video.play();
-
-        cameraContainer.style.display = "block";
-        captureBtn.style.display = "inline-block";
-        openCameraBtn.style.display = "none";
-      } catch (error) {
-        alert("เปิดกล้องไม่ได้ กรุณาอนุญาตการใช้กล้องและลองใหม่");
-        stopCamera();
-      }
-    }
-
-    function stopCamera() {
-      if (mediaStream) {
-        mediaStream.getTracks().forEach(track => track.stop());
-        mediaStream = null;
-      }
-      cameraContainer.style.display = "none";
-      captureBtn.style.display = "none";
-      openCameraBtn.style.display = "block";
-    }
-
-    openCameraBtn.addEventListener("click", openCamera);
-
-    captureBtn.addEventListener("click", () => {
-      if (!video.videoWidth || !video.videoHeight) {
-        alert("กล้องยังไม่พร้อม กรุณารอสักครู่แล้วลองใหม่");
-        return;
-      }
-
-      const maxWidth = 1280;
-      const scale = Math.min(1, maxWidth / video.videoWidth);
-      const canvas = document.createElement("canvas");
-      canvas.width = Math.round(video.videoWidth * scale);
-      canvas.height = Math.round(video.videoHeight * scale);
-
-      const context = canvas.getContext("2d");
-      context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-      photoData = canvas.toDataURL("image/jpeg", 0.75);
-      photoPreview.src = photoData;
-      photoPreview.style.display = "block";
-      retakeBtn.style.display = "inline-block";
-      stopCamera();
-    });
-
-    retakeBtn.addEventListener("click", () => {
-      photoData = "";
-      photoPreview.src = "";
-      photoPreview.style.display = "none";
-      retakeBtn.style.display = "none";
-      openCamera();
-    });
-
-    // ส่งข้อมูลไป Apps Script
-    form.addEventListener("submit", async event => {
-      event.preventDefault();
-      stopCamera();
-
-      if (signaturePad.isEmpty()) {
-        alert("กรุณาลงลายเซ็นก่อนส่งข้อมูล");
-        return;
-      }
-
-      const items = [...itemsContainer.querySelectorAll(".item-card")].map(card => ({
-        pea: card.querySelector(".pea").value.trim(),
-        bookNo: card.querySelector(".bookNo").value.trim(),
-        docNo: card.querySelector(".docNo").value.trim()
-      }));
-
-      const payload = {
-        items: items,
-        signature: signaturePad.toDataURL("image/png"),
-        photo: photoData
-      };
-
-      submitBtn.disabled = true;
-      submitBtn.textContent = "กำลังส่งข้อมูล...";
-
-      try {
-        await fetch(WEB_APP_URL, {
-          method: "POST",
-          mode: "no-cors",
-          body: JSON.stringify(payload)
-        });
-
-        alert("ส่งคำขอแล้ว กรุณาตรวจสอบข้อมูลใน Google Sheets ก่อนส่งซ้ำ");
-      } catch (error) {
-        console.error(error);
-        alert("ส่งข้อมูลไม่ได้ กรุณาตรวจสอบอินเทอร์เน็ตแล้วลองใหม่");
-      } finally {
-        submitBtn.disabled = false;
-        submitBtn.textContent = "ส่งข้อมูล";
-      }
-    });
-  </script>
+showPending();
+if(getQueue().length) flushQueue();
+window.addEventListener("online", flushQueue);
+</script>
 </body>
 </html>
