@@ -1,1 +1,35 @@
+function doPost(e) {
+  try {
+    // ระบุชื่อ Sheet ที่ต้องการให้บันทึกข้อมูลลงไป (ถ้ามีหน้าเดียวปล่อยเป็นgetActiveSheetได้เลย)
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    var data = JSON.parse(e.postData.contents);
+    
+    var pea = data.pea;           
+    var items = data.items;       
+    var signature = data.signature; 
+    var photo = data.photo || "";   
+    var timestamp = new Date();
+    
+    items.forEach(function(item) {
+      var rowData = [
+        timestamp,      // คอลัมน์ A: วันที่และเวลา
+        pea,            // คอลัมน์ B: กฟฟ.
+        item.bookNo,    // คอลัมน์ C: เล่มที่
+        item.docNo,     // คอลัมน์ D: เลขที่
+        signature,      // คอลัมน์ E: ลายเซ็น (Base64)
+        photo           // คอลัมน์ F: รูปถ่าย (Base64)
+      ];
+      sheet.appendRow(rowData);
+    });
+    
+    return ContentService
+      .createTextOutput(JSON.stringify({"status": "success", "message": "บันทึกข้อมูลสำเร็จทั้งหมด"}))
+      .setMimeType(ContentService.MimeType.JSON);
+      
+  } catch (error) {
+    return ContentService
+      .createTextOutput(JSON.stringify({"status": "error", "message": error.toString()}))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
 
