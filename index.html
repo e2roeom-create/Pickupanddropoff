@@ -43,6 +43,13 @@
   #toast.show{opacity:1}
   #toast.ok{background:var(--ok)} #toast.err{background:var(--err)}
   #pending{display:none;background:#fff4d6;border:1px solid #f0d78a;color:#6b5400;border-radius:10px;padding:10px 12px;margin-bottom:14px;font-size:.92rem}
+  /* กล้อง */
+  #camModal{display:none;position:fixed;inset:0;background:#000;z-index:40;flex-direction:column}
+  #camModal.open{display:flex}
+  #camModal video{flex:1;width:100%;min-height:0;object-fit:cover;background:#000}
+  .cam-bar{display:flex;justify-content:space-around;align-items:center;padding:16px;background:#111}
+  .shutter{width:68px;height:68px;border-radius:50%;background:#fff;border:5px solid #aaa;padding:0}
+  .cam-bar .btn-sec{background:#333;color:#fff}
 </style>
 </head>
 <body>
@@ -69,7 +76,6 @@
       <label>รูปถ่ายผู้รับ</label>
       <div class="btn-row">
         <button type="button" class="btn-sec" id="btnCam">📷 ถ่ายรูป</button>
-        <input type="file" id="camInput" accept="image/*" capture="environment" hidden>
         <button type="button" class="btn-sec" id="btnPhotoClear" style="display:none">ลบรูป</button>
       </div>
       <div class="hint">กดปุ่มเพื่อเปิดกล้องโทรศัพท์และถ่ายรูปผู้รับ (ไม่รองรับการอัปโหลดรูป)</div>
@@ -88,6 +94,16 @@
     <button type="submit" class="btn-primary" id="btnSubmit">ส่งข้อมูล</button>
   </form>
 </main>
+
+<!-- หน้ากล้อง (ถ่ายสดในหน้าเว็บ ไม่มีการเลือกรูปจากเครื่อง) -->
+<div id="camModal">
+  <video id="camVideo" autoplay playsinline muted></video>
+  <div class="cam-bar">
+    <button type="button" class="btn-sec" id="camCancel">ยกเลิก</button>
+    <button type="button" class="shutter" id="camShot" aria-label="ถ่าย"></button>
+    <button type="button" class="btn-sec" id="camFlip">สลับกล้อง</button>
+  </div>
+</div>
 
 <div id="toast"></div>
 
@@ -160,9 +176,52 @@ function readItems(){
   }));
 }
 
-/* ---------- ถ่ายรูป (เปิดแอปกล้องของโทรศัพท์ ไม่มีตัวเลือกอัปโหลดรูป) ---------- */
-let photoData = "";
-const MAX_AGE_MS = 10 * 60 * 1000; // รูปต้องเพิ่งถ่ายภายใน 10 นาที
+/* ---------- ถ่ายรูป (เปิดกล้องสดในหน้าเว็บ ไม่มีตัวเลือกอัปโหลดรูป) ---------- */
+let photoData = "", stream = null, facing = "environment";
+
+function camError(err){
+  const ua = navigator.userAgent || "";
+  if(/Line|FBAN|FBAV|Instagram|MicroMessenger/i.test(ua)){
+    return "เปิดลิงก์ในแอปนี้ไม่ได้ กรุณากดเมนู ⋮ แล้วเลือก \"เปิดด้วย Chrome/Safari\"";
+  }
+  if(!window.isSecureContext) return "ต้องเปิดลิงก์แบบ https:// เท่านั้น";
+  switch(err && err.name){
+    case "NotAllowedError": case "SecurityError":
+      return "ยังไม่ได้อนุญาตกล้อง กรุณากดอนุญาต (หรือไปที่ตั้งค่าเว็บไซต์ในเบราว์เซอร์ > กล้อง > อนุญาต) แล้วลองใหม่";
+    case "NotFoundError": case "OverconstrainedError":
+      return "ไม่พบกล้องในเครื่อง";
+    case "NotReadableError": case "AbortError":
+      return "กล้องถูกใช้งานโดยแอปอื่นอยู่ กรุณาปิดแอปนั้นแล้วลองใหม่";
+    default:
+      return "เปิดกล้องไม่ได้ (" + ((err && err.name) || "unknown") + ")";
+  }
+}
+
+async function openCam(){
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+    toast(camError(null), "err"); return;
+  }
+  try{
+    stopStream();
+    try{
+      stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:facing}, width:{ideal:1280}, height:{ideal:960}}, audio:false});
+    }catch(e){
+      if(e && (e.name === "OverconstrainedError" || e.name === "NotFoundError")){
+        stream = await navigator.mediaDevices.getUserMedia({video:true, audio:false});
+      }else throw e;
+    }
+    const v = $("camVideo");
+    v.srcObject = stream;
+    $("camModal").classList.add("open");
+    try{ await v.play(); }catch(e){}
+  }catch(err){
+    toast(camError(err), "err");
+  }
+}
+function stopStream(){
+  if(stream){ stream.getTracks().forEach(t=>t.stop()); stream = null; }
+}
+function closeCam(){ stopStream(); $("camModal").classList.remove("open"); }
 
 function setPhoto(dataUrl){
   photoData = dataUrl;
@@ -181,21 +240,14 @@ function shrink(srcW, srcH, draw){
   draw(c.getContext("2d"), c.width, c.height);
   return c.toDataURL("image/jpeg", 0.72);
 }
-$("btnCam").onclick = () => $("camInput").click();
-$("camInput").onchange = e => {
-  const f = e.target.files[0]; e.target.value = "";
-  if(!f) return;
-  // กันรูปเก่าจากคลังภาพ: รูปที่เพิ่งถ่ายจะมีเวลาแก้ไขล่าสุดใกล้ปัจจุบัน
-  if(f.lastModified && Date.now() - f.lastModified > MAX_AGE_MS){
-    toast("กรุณาถ่ายรูปใหม่ด้วยกล้อง (ไม่รับรูปจากคลังภาพ)","err"); return;
-  }
-  const img = new Image();
-  img.onload = () => {
-    setPhoto(shrink(img.naturalWidth, img.naturalHeight, (ctx,w,h)=>ctx.drawImage(img,0,0,w,h)));
-    URL.revokeObjectURL(img.src);
-  };
-  img.onerror = () => toast("อ่านรูปไม่ได้ กรุณาถ่ายใหม่","err");
-  img.src = URL.createObjectURL(f);
+$("btnCam").onclick = openCam;
+$("camCancel").onclick = closeCam;
+$("camFlip").onclick = () => { facing = facing === "user" ? "environment" : "user"; openCam(); };
+$("camShot").onclick = () => {
+  const v = $("camVideo");
+  if(!v.videoWidth) return;
+  setPhoto(shrink(v.videoWidth, v.videoHeight, (ctx,w,h)=>ctx.drawImage(v,0,0,w,h)));
+  closeCam();
 };
 $("btnPhotoClear").onclick = clearPhoto;
 
